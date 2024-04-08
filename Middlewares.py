@@ -2,6 +2,7 @@ import yaml
 import math
 import numpy as np
 import supervision as sv
+from Output import DetectionOutput
 
 def load_polygone_config(yml_path):
     # Load YAML zones file
@@ -107,7 +108,8 @@ def process_frame(
         bounding_box_annotator,
         label_annotator,
         zone,
-        coordinatespxl
+        coordinatespxl,
+        frameNbr
         ):
     #print(f"Zone : {zone}")
     # format labels
@@ -131,11 +133,14 @@ def process_frame(
     for tracker_id, [x, y] in zip(detections_zone.tracker_id, detections_zone.get_anchors_coordinates(anchor=sv.Position.BOTTOM_CENTER)):
         coordinatespxl[tracker_id].append((x,y))
 
+    p = 0
     for tracker_id in detections_zone.tracker_id:
+        
         if len(coordinates[tracker_id]) < video_info.fps / 2:
             labels.append(f"#{tracker_id}")
         else:
             # calculate speed
+            p+=1
             coordinate_start = coordinates[tracker_id][-1]
             coordinate_startpxl = coordinatespxl[tracker_id][-1]
             coordinate_end = coordinates[tracker_id][0]
@@ -146,8 +151,17 @@ def process_frame(
             time = len(coordinates[tracker_id]) / video_info.fps
             speedKmh = distance / time * 3.6
             speedpxlsec = distancepxl / time
-            print(f"SPEED : {speedKmh}")
-            print(f"SPEED : {speedpxlsec}")
+
+            #DetectOutputObject = DetectionOutput(tracker_id, detections_zone.class_id[p], coordinatespxl[tracker_id], coordinates[tracker_id], speedKmh, speedpxlsec, frameNbr)
+            #print(DetectOutputObject)
+            print(tracker_id)
+            print(detections_zone.class_id[p])
+            print(coordinatespxl[tracker_id])
+            print(coordinates[tracker_id])
+            print(speedKmh)
+            print(speedpxlsec)
+            print(frameNbr)
+            print("----------------------------------------------------------------")
             # Calculate proximity threshold based on speed
             proximity_threshold = calculate_proximity_threshold(speedKmh)
             #print(f"Proximity_threshold : {proximity_threshold}")

@@ -59,8 +59,9 @@ def main():
     with sv.VideoSink(TARGET_VIDEO_PATH, video_info) as sink:
         nbframe = video_info.total_frames
         # loop over source video frame
+        k=0
         for frame in tqdm(frame_generator, total=nbframe):
-
+            k+=1
             result = model(frame, imgsz=int(MODEL_RESOLUTION), verbose=False)[0]
             detections = sv.Detections.from_ultralytics(result)
 
@@ -77,7 +78,7 @@ def main():
                     [0, targets_height[i] - 1],
                 ])
                 view_transformer = ViewTransformer(source=np.array(zones[i]['polygon']), target=TARGET)
-                annotated_frame = process_frame(annotated_frame, polygon, detections, IOU_THRESHOLD, byte_track, view_transformer, coordinates, video_info, trace_annotator, bounding_box_annotator, label_annotator, i, coordinatespxl)
+                annotated_frame = process_frame(annotated_frame, polygon, detections, IOU_THRESHOLD, byte_track, view_transformer, coordinates, video_info, trace_annotator, bounding_box_annotator, label_annotator, i, coordinatespxl, k)
                 i+=1
                 
 
