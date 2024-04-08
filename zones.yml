@@ -1,0 +1,10 @@
+zones:
+  - name: Zone 1
+    polygon:
+      - [650, 200]
+      - [800, 180]
+      - [1330, 900]
+      - [1100, 900]
+    target_width: 4
+    target_height: 30
+    max: 32

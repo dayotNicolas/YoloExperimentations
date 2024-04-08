@@ -1,0 +1,37 @@
+zones:
+  - name: Zone 1
+    polygon:
+      - [1252, 787]
+      - [1550, 787]
+      - [980, 2159]
+      - [-550, 2159]
+    target_width: 7
+    target_height: 250
+    max: 32
+  - name: Zone 2
+    polygon:
+      - [1550, 787]
+      - [1750, 787]
+      - [1850, 2159]
+      - [980, 2159]
+    target_width: 5
+    target_height: 250
+    max: 38
+  - name: Zone 3
+    polygon:
+      - [1877, 787]
+      - [2021, 787]
+      - [3609, 2144]
+      - [2711, 2144]
+    target_width: 5
+    target_height: 250
+    max: 38
+  - name: Zone 4
+    polygon:
+      - [2021, 787]
+      - [2165, 787]
+      - [5000, 2144]
+      - [3617, 2144]
+    target_width: 6
+    target_height: 250
+    max: 38
