@@ -3,6 +3,9 @@ import math
 import numpy as np
 import supervision as sv
 from Output import DetectionOutput
+import csv
+from datetime import datetime
+import os
 
 def load_polygone_config(yml_path):
     # Load YAML zones file
@@ -93,7 +96,32 @@ def check_proximity(coordinates, detections_zone, current_tracker_id, proximity_
                 if distance < proximity_threshold:
                     return True  # Danger condition (too close)
 
-    return False 
+    return False
+
+def write_object_to_csv(obj):
+    # Get current date in YYYY-MM-DD format
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    reslutDirectory = './datas/detections_datas/'
+
+    # Define CSV file path with date in the name
+    csv_file = f'{reslutDirectory}objects_data_{current_date}.csv'
+
+    # Define field names based on object attributes
+    field_names = ['tracker_id', 'class_id', 'pixel_coords', 'meter_coords', 'speed(km/h)', 'speed(pixel/s)', 'distance_warning', 'frame_number']
+
+    # Check if the CSV file already exists or not
+    file_exists = os.path.isfile(csv_file)
+
+    # Write object data to CSV file
+    with open(csv_file, 'a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=field_names)
+
+        # Write header if the file is newly created
+        if not file_exists:
+            writer.writeheader()
+
+        # Write object data as a new row
+        writer.writerow({'tracker_id': obj.tracker_id, 'class_id': obj.class_id, 'pixel_coords': obj.pixel_coords, 'meter_coords': obj.meter_coords, 'speed(km/h)': obj.speed, 'speed(pixel/s)': obj.speedpxl, 'distance_warning': obj.isDanger, 'frame_number': obj.frame_number})
 
 def process_frame(
         annotated_frame,
@@ -140,7 +168,7 @@ def process_frame(
             labels.append(f"#{tracker_id}")
         else:
             # calculate speed
-            p+=1
+            
             coordinate_start = coordinates[tracker_id][-1]
             coordinate_startpxl = coordinatespxl[tracker_id][-1]
             coordinate_end = coordinates[tracker_id][0]
@@ -152,21 +180,16 @@ def process_frame(
             speedKmh = distance / time * 3.6
             speedpxlsec = distancepxl / time
 
-            #DetectOutputObject = DetectionOutput(tracker_id, detections_zone.class_id[p], coordinatespxl[tracker_id], coordinates[tracker_id], speedKmh, speedpxlsec, frameNbr)
-            #print(DetectOutputObject)
-            print(tracker_id)
-            print(detections_zone.class_id[p])
-            print(coordinatespxl[tracker_id])
-            print(coordinates[tracker_id])
-            print(speedKmh)
-            print(speedpxlsec)
-            print(frameNbr)
-            print("----------------------------------------------------------------")
+            
             # Calculate proximity threshold based on speed
             proximity_threshold = calculate_proximity_threshold(speedKmh)
             #print(f"Proximity_threshold : {proximity_threshold}")
             # Check proximity to other vehicles (danger condition)
             is_danger = check_proximity(coordinates, detections_zone, tracker_id, proximity_threshold)
+            
+            DetectOutputObject = DetectionOutput(tracker_id, detections_zone.class_id[p], coordinatespxl[tracker_id][-1], coordinates[tracker_id][-1], speedKmh, speedpxlsec, is_danger, frameNbr)
+            write_object_to_csv(DetectOutputObject)
+            p+=1
 
             if is_danger:
                 labels.append(f"#{tracker_id} {int(speedKmh)} km/h {int(speedpxlsec)} px/s DANGER")
